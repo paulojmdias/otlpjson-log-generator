@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: otel-app
+    volumes:
+      - logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["/usr/local/bin/start.sh"]
+
+volumes:
+  logs:

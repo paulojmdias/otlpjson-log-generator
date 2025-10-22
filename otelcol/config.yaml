@@ -1,0 +1,55 @@
+receivers:
+  otlpjsonfile/app:
+    include:
+      - /app/logs/service.log
+    include_file_name: false
+    include_file_path: true
+    start_at: end
+    storage: file_storage
+
+exporters:
+  debug:
+    verbosity: detailed
+
+extensions:
+  file_storage:
+    directory: /var/lib/opentelemetry-collector
+  cgroupruntime:
+    gomaxprocs:
+      enabled: true
+    gomemlimit:
+      enabled: true
+      ratio: 0.8
+
+processors:
+  batch:
+    send_batch_size: 3000
+    timeout: 1s
+  memory_limiter:
+    check_interval: 5s
+    limit_percentage: 40
+    spike_limit_percentage: 25
+
+service:
+  extensions:
+    - file_storage
+    - cgroupruntime
+  pipelines:
+    logs:
+      receivers:
+        - otlpjsonfile/app
+      processors:
+        - batch
+        - memory_limiter
+      exporters:
+        - debug
+  telemetry:
+    logs:
+      encoding: json
+      level: debug
+      error_output_paths:
+        - stderr
+        - /var/log/opentelemetry-collector/opentelemetry-collector.log
+      output_paths:
+        - stdout
+        - /var/log/opentelemetry-collector/opentelemetry-collector.log
