@@ -39,8 +39,8 @@ service:
       receivers:
         - otlpjsonfile/app
       processors:
-        - batch
         - memory_limiter
+        - batch
       exporters:
         - debug
   telemetry:
